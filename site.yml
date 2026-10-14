@@ -3,29 +3,29 @@
   hosts: wordpress_servers
   #become: true
   gather_facts: true
+  tasks:
+    - name: "Debug | Identify Ansible user"
+      ansible.builtin.command: whoami
+      register: current_user
+      changed_when: false
 
-- name: "Debug | Identify Ansible user"
-  ansible.builtin.command: whoami
-  register: current_user
-  changed_when: false
+    - name: "Debug | Check Docker access"
+      ansible.builtin.command:
+        argv:
+          - docker
+          - ps
+          - --filter
+          - name=eazy-wp-db
+      register: docker_check
+      changed_when: false
 
-- name: "Debug | Check Docker access"
-  ansible.builtin.command:
-    argv:
-      - docker
-      - ps
-      - --filter
-      - name=eazy-wp-db
-  register: docker_check
-  changed_when: false
-
-- name: "Debug | Display execution context"
-  ansible.builtin.debug:
-    msg:
-      - "Utilisateur Ansible : {{ current_user.stdout }}"
-      - "Conteneur MySQL : {{ mysql_container }}"
-      - "Répertoire backup : {{ backup_db_dir }}"
-      - "Résultat Docker : {{ docker_check.stdout }}"
+    - name: "Debug | Display execution context"
+      ansible.builtin.debug:
+        msg:
+          - "Utilisateur Ansible : {{ current_user.stdout }}"
+          - "Conteneur MySQL : {{ mysql_container }}"
+          - "Répertoire backup : {{ backup_db_dir }}"
+          - "Résultat Docker : {{ docker_check.stdout }}"
 
   roles:
     - wordpress_ops
