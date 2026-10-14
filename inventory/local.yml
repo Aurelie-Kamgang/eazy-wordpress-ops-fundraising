@@ -1,0 +1,7 @@
+---
+all:
+  children:
+    wordpress_servers:
+      hosts:
+        wordpress_vm:
+          ansible_connection: local

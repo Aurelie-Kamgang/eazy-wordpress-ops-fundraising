@@ -1,0 +1,150 @@
+.givewp-sale-banners-container {
+    display: block;
+    width: 100%;
+    position: relative;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+    border-radius: 8px;
+
+    /* Box-sizing reset */
+    &,
+    & *,
+    & ::before,
+    & ::after {
+        box-sizing: border-box;
+    }
+
+    font-family: 'Open Sans', system-ui, sans-serif;
+
+    #give-in-plugin-upsells & {
+        margin-top: 2rem;
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* List Table pages */
+#give-admin-donations-root, #give-admin-donation-forms-root, #give-admin-donors-root {
+    .givewp-sale-banners-container {
+        width: auto;
+        margin: 1rem;
+    }
+}
+
+/* Add Form page */
+.post-type-give_forms {
+    .givewp-sale-banners-container {
+        width: 100%;
+        margin: 1.55rem 0 0 0;
+    }
+}
+
+/* Settings & Tools page */
+.give_forms_page_give-settings, .give-tools-setting-page{
+    .givewp-sale-banners-container {
+        width: 100%;
+        margin: .5rem 0;
+    }
+}
+
+.givewp-sale-banner {
+    &__content {
+        width: 70%;
+        line-height: normal;
+        font-style: normal;
+        padding: 1.75rem 0 1.5rem 2.75rem;
+        box-shadow: 0 0.0625em 0.25em rgba(0, 0, 0, 0.25);
+
+        & h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0;
+            color: #022603;
+            line-height: 1;
+
+            & strong {
+                color: #459948;
+                font-weight: 900;
+            }
+        }
+
+        & p {
+            font-size: 1.25rem !important;
+            font-weight: 500;
+        }
+
+        & a {
+            display: inline-flex;
+            padding: 1rem 1.5rem;
+            justify-content: center;
+            align-items: center;
+            gap: .5rem;
+            background: #459948;
+            border-radius: 36px;
+            border: none;
+            color: var(--shades-white, #FFF);
+            font-size: 1.25rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+
+            &:hover {
+                background: #2D802F;
+            }
+        }
+    }
+
+    &__dismiss {
+        position: absolute;
+        top: .5rem;
+        right: .5rem;
+        background: none;
+        border: none;
+        cursor: pointer;
+    }
+}
+
+/* Media query for small screens */
+@media screen and (max-width: 768px) {
+    .givewp-sale-banners-container {
+        padding: 1.25rem 0 1.5rem 1.5rem;
+    }
+
+    .givewp-sale-banner__content {
+        & h2 {
+            font-size: 1.125rem;
+        }
+
+        & p {
+            margin: .5rem 0 1rem 0;
+            font-size: 0.875rem !important;
+            line-height: 1.75rem;
+
+        }
+
+        & a {
+            font-size: 0.875rem;
+            padding: .75rem 1rem;
+        }
+    }
+}
+
+
+/* Media query for medium screens */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+    .givewp-sale-banner__content {
+        & h2 {
+            font-size: 1.75rem;
+        }
+
+        & p {
+            font-size: 1.125rem !important;
+            line-height: 1.5rem;
+            margin: .75rem 0 1rem 0;
+        }
+
+        & a {
+            font-size: 1rem;
+        }
+    }
+}

@@ -1,0 +1,59 @@
+/**
+ * Give Frontend Progress Bar SCSS
+ *
+ * @package     Give
+ * @subpackage  SCSS/Frontend
+ * @copyright   Copyright (c) 2016, GiveWP
+ * @license     http://opensource.org/licenses/gpl-2.0.php GNU Public License
+*/
+
+.components-base-control__field input[type=text]:focus {
+    box-shadow: none !important;
+}
+
+.give-goal-progress {
+    display: flex;
+    flex-direction: column;
+    width:100%;
+    margin-bottom: 20px;
+    clear:both;
+
+    .income {
+        font-size: 46px;
+        line-height: 48px;
+        letter-spacing: -1px;
+        color: #333;
+    }
+
+    .raised {
+        margin-bottom: 15px;
+    }
+
+    .progress-bar {
+        width: 100%;
+        background: none;
+        padding-bottom: 10px;
+    }
+
+    .give-progress-bar {
+        width: 100%;
+        height: 20px;
+        position: relative;
+        background: #EEE;
+        border-radius: 25px;
+        overflow: hidden;
+
+        > span {
+            display: block;
+            height: 100%;
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+            background: none;
+        }
+    }
+
+}
+
+
+

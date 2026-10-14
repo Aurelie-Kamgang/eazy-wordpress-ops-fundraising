@@ -1,0 +1,37 @@
+---
+# ============================================================
+# CIBLE WORDPRESS
+# ============================================================
+wordpress_container: "eazy-wp-wordpress"
+mysql_container: "eazy-wp-db"
+wordpress_root: "/var/www/html"
+
+# ============================================================
+# BACKUPS
+# ============================================================
+backup_base_dir: "/var/backups/eazytraining/wordpress"
+backup_db_dir: "{{ backup_base_dir }}/database"
+backup_files_dir: "{{ backup_base_dir }}/files"
+
+# ============================================================
+# MISE A JOUR DE PLUGINS
+# Modifie ici le plugin / la version dans GitHub, puis lance
+# le tag update_plugins dans Semaphore.
+# version: latest -> dernière version disponible
+# version: 4.10.0 -> version précise
+# ============================================================
+plugins_to_update:
+  - name: "give"
+    version: "latest"
+
+# ============================================================
+# RESTAURATION
+# Mets uniquement le NOM du fichier présent dans le répertoire
+# de backup de la VM. Exemple : wordpress_db_20261014T021500.sql
+# ============================================================
+restore_db_filename: ""
+restore_files_filename: ""
+
+# Protection contre une restauration accidentelle.
+# Mets true uniquement pour la restauration, puis remets false.
+restore_confirm: false

@@ -1,0 +1,8 @@
+---
+galaxy_info:
+  role_name: wordpress_ops
+  author: EAZYTraining
+  description: WordPress operational routines with Docker and Ansible
+  license: MIT
+  min_ansible_version: "2.15"
+dependencies: []

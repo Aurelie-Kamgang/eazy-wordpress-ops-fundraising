@@ -1,0 +1,232 @@
+/*--------------------------------------------------------------
+# Review
+--------------------------------------------------------------*/
+
+/**
+ * Single donor with user image, details, and review text.
+ *
+ * 1. Card Container wraps the Image, Name, Content & Details. It displays above the tribute message.
+ * 2. Content includes the donor comment
+ * 4. Details include the forms title & amount given.
+ */
+
+@use "sass:string";
+
+$MIN_REM_SIZE: 16px;
+
+/**
+ * Safely use rem values in distributed code for unpredictable environments (e.g. for use inside a WordPress plugin).
+ *
+ * This does not support IE 11 and a few other outdated browser.
+ * A Sass mixin could be used to provide a fallback value for this.
+ *
+ * @param {Number} $value
+ * @return {String} e.g. for $value: 3 and $MIN_REM_SIZE: 16px => max(3rem, 48px)
+ */
+@function safe-rem($value) {
+    @return string.unquote("max(#{$value}rem, #{$value * $MIN_REM_SIZE})");
+}
+
+/*--------------------------------------------------------------
+# Spacing
+--------------------------------------------------------------*/
+
+$donor-space: 20px;
+$donor-color: #00160A;
+$donor-space-eighth: $donor-space * 0.125;
+$donor-space-quarter: $donor-space * 0.25;
+$donor-space-fifth: $donor-space * 0.2;
+$donor-space-half: $donor-space * 0.75;
+$donor-space-three-quarters: $donor-space * 0.75;
+$donor-space-and-quarter: $donor-space * 1.25;
+$donor-space-and-half: $donor-space * 1.5;
+$donor-space-and-three-quarters: $donor-space * 1.75;
+$donor-space-double: $donor-space * 2;
+$donor-space-triple: $donor-space * 3;
+
+
+.give-donor {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width:100%;
+    max-height: 100%;
+    padding: 18px 0;
+    margin-bottom: $donor-space;
+    border: 1px solid $give-card-border;
+    background: #fff;
+    color: $donor-color;
+    transition: all 0.2s ease-out;
+
+    &-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding: 0 5%;
+
+        &__image {
+            align-self: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            overflow: hidden;
+            border-radius: 50%;
+            border: 1px solid $give-card-border;
+            margin-bottom: 12px;
+
+            img {
+                object-fit: cover;
+                object-position: center;
+                width: 100%;
+            }
+
+            &__name_initial {
+                position: absolute;
+            }
+
+            &[data-anonymous-donation='0'] img[src*='anonymous-user.svg'],
+            &[data-anonymous-donation='1'] .give-donor-header__name_initial {
+                visibility: hidden;
+            }
+
+            &[data-anonymous-donation='0'][data-has-valid-gravatar='0'] {
+                border: 1px solid $give-card-border;
+            }
+        }
+
+        &-variation {
+            display: flex;
+            justify-content: space-between;
+
+            &__name {
+                margin: 0 0 10px 0 !important;
+                font-size: safe-rem(1.5);
+                font-weight: 600;
+                line-height: 20px;
+            }
+
+            &__timestamp {
+                margin: 0 0 10px 0 !important;
+                color: #525252;
+                font-size: safe-rem(0.75);
+            }
+        }
+    }
+
+    /* [1] */
+    &-wrapper {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        word-break: normal !important;
+    }
+
+    &-content {
+        flex: 1;
+        width: 100%;
+        line-height: 20px;
+        margin: 12px 0;
+        padding-left: 16px;
+        border-left: 2px solid #219653;
+        font-weight: 400;
+        letter-spacing: 0;
+
+        p {
+            width: 100%;
+            color: $donor-color;
+            font-size: safe-rem(.875);
+            font-style: italic;
+            line-height: 20px;
+            margin: 0 !important;
+        }
+
+        &__excerpt &__read-more {
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        &__excerpt + &__comment {
+            display: none;
+        }
+    }
+
+
+    /* [2] */
+
+    &-details {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        &__wrapper {
+            display: flex;
+            flex-direction: column;
+            width: 70%;
+            word-break: normal !important;
+
+            span:first-child {
+                color: $donor-color;
+                font-size: safe-rem(1) !important;;
+                font-weight: 500 !important;;
+                letter-spacing: 0;
+            }
+
+            span:last-child {
+                color: $donor-color;
+                font-size: safe-rem(0.8);
+                font-weight: 400;
+                letter-spacing: 0;
+                text-align: left;
+            }
+        }
+
+        &__total {
+            color: #219653;
+            font-size: safe-rem(1.25);
+            font-weight: 700;
+            line-height: 24px;
+            letter-spacing: 0;
+            text-align: right;
+            overflow-wrap: normal;
+            word-break: normal !important;
+        }
+    }
+
+    /* [3] */
+
+    &-tribute{
+        display: flex;
+        align-items: center;
+        width: 100%;
+        min-height: 32px;
+        margin-top: 32px;
+
+        span {
+            svg {
+                display: block;
+                height: 22px;
+                width: 22px;
+                margin: 0 15px 0 32px;
+            }
+        }
+
+        &__message {
+            font-size: safe-rem(0.75);
+            color: $donor-color;
+            text-align: center;
+
+            span:last-child {
+                font-weight: 600;
+            }
+        }
+    }
+}
+
+.give-donor-wall-modal {
+    p:last-child {
+        margin-bottom: 0;
+    }
+}

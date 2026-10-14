@@ -1,0 +1,20 @@
+services:
+  semaphore:
+    image: semaphoreui/semaphore:v2.19.12
+    container_name: eazy-semaphore
+    restart: unless-stopped
+    ports:
+      - "${SEMAPHORE_PORT:-3000}:3000"
+    environment:
+      SEMAPHORE_DB_DIALECT: sqlite
+      SEMAPHORE_DB_PATH: /var/lib/semaphore
+      SEMAPHORE_PLAYBOOK_PATH: /tmp/semaphore
+      SEMAPHORE_ADMIN: ${SEMAPHORE_ADMIN}
+      SEMAPHORE_ADMIN_NAME: ${SEMAPHORE_ADMIN_NAME}
+      SEMAPHORE_ADMIN_EMAIL: ${SEMAPHORE_ADMIN_EMAIL}
+      SEMAPHORE_ADMIN_PASSWORD: ${SEMAPHORE_ADMIN_PASSWORD}
+    volumes:
+      - semaphore_data:/var/lib/semaphore
+
+volumes:
+  semaphore_data:

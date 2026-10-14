@@ -1,0 +1,14 @@
+# Secrets / local runtime
+infra/wordpress/.env
+infra/semaphore/.env
+*.pem
+*.key
+
+# Ansible / Python
+*.retry
+__pycache__/
+.venv/
+
+# Archives/backups
+*.sql
+*.tar.gz

@@ -1,0 +1,60 @@
+---
+- name: "Restore Files | Require confirmation"
+  ansible.builtin.assert:
+    that:
+      - restore_confirm | bool
+    fail_msg: "Restauration bloquée : mets restore_confirm: true dans inventory/group_vars/wordpress_servers.yml."
+  tags: [restore_files, restore_full]
+
+- name: "Restore Files | Require archive filename"
+  ansible.builtin.assert:
+    that:
+      - restore_files_filename | length > 0
+      - restore_files_filename == (restore_files_filename | basename)
+    fail_msg: "Renseigne uniquement le nom du fichier dans restore_files_filename."
+  tags: [restore_files, restore_full]
+
+- name: "Restore Files | Build archive path"
+  ansible.builtin.set_fact:
+    restore_files_archive: "{{ backup_files_dir }}/{{ restore_files_filename }}"
+  tags: [restore_files, restore_full]
+
+- name: "Restore Files | Verify archive exists"
+  ansible.builtin.stat:
+    path: "{{ restore_files_archive }}"
+  register: restore_files_stat
+  tags: [restore_files, restore_full]
+
+- name: "Restore Files | Validate archive"
+  ansible.builtin.assert:
+    that:
+      - restore_files_stat.stat.exists
+      - restore_files_stat.stat.size | int > 100
+    fail_msg: "Backup fichiers introuvable : {{ restore_files_archive }}"
+  tags: [restore_files, restore_full]
+
+- name: "Restore Files | Copy archive into WordPress container"
+  ansible.builtin.command:
+    argv:
+      - docker
+      - cp
+      - "{{ restore_files_archive }}"
+      - "{{ wordpress_container }}:/tmp/wordpress_restore.tar.gz"
+  changed_when: true
+  tags: [restore_files, restore_full]
+
+- name: "Restore Files | Replace WordPress files"
+  ansible.builtin.shell: |
+    docker exec {{ wordpress_container | quote }} sh -c '
+      find {{ wordpress_root | quote }} -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+      tar -xzf /tmp/wordpress_restore.tar.gz -C {{ wordpress_root | quote }}
+      chown -R www-data:www-data {{ wordpress_root | quote }}
+      rm -f /tmp/wordpress_restore.tar.gz
+    '
+  changed_when: true
+  tags: [restore_files, restore_full]
+
+- name: "Restore Files | Result"
+  ansible.builtin.debug:
+    msg: "Fichiers WordPress restaurés depuis {{ restore_files_archive }}"
+  tags: [restore_files, restore_full]

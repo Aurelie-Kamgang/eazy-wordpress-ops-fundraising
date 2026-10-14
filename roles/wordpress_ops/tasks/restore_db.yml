@@ -1,0 +1,57 @@
+---
+- name: "Restore DB | Require confirmation"
+  ansible.builtin.assert:
+    that:
+      - restore_confirm | bool
+    fail_msg: "Restauration bloquée : mets restore_confirm: true dans inventory/group_vars/wordpress_servers.yml."
+  tags: [restore_db, restore_full]
+
+- name: "Restore DB | Require backup filename"
+  ansible.builtin.assert:
+    that:
+      - restore_db_filename | length > 0
+      - restore_db_filename == (restore_db_filename | basename)
+    fail_msg: "Renseigne uniquement le nom du fichier dans restore_db_filename."
+  tags: [restore_db, restore_full]
+
+- name: "Restore DB | Build backup path"
+  ansible.builtin.set_fact:
+    restore_db_file: "{{ backup_db_dir }}/{{ restore_db_filename }}"
+  tags: [restore_db, restore_full]
+
+- name: "Restore DB | Verify backup exists"
+  ansible.builtin.stat:
+    path: "{{ restore_db_file }}"
+  register: restore_db_stat
+  tags: [restore_db, restore_full]
+
+- name: "Restore DB | Validate backup"
+  ansible.builtin.assert:
+    that:
+      - restore_db_stat.stat.exists
+      - restore_db_stat.stat.size | int > 100
+    fail_msg: "Backup DB introuvable : {{ restore_db_file }}"
+  tags: [restore_db, restore_full]
+
+- name: "Restore DB | Recreate database"
+  ansible.builtin.shell: |
+    docker exec {{ mysql_container | quote }} sh -c \
+      'MYSQL_PWD="$MYSQL_ROOT_PASSWORD" exec mysql -uroot -e "DROP DATABASE IF EXISTS \`$MYSQL_DATABASE\`; CREATE DATABASE \`$MYSQL_DATABASE\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"'
+  changed_when: true
+  tags: [restore_db, restore_full]
+
+- name: "Restore DB | Import backup"
+  ansible.builtin.shell: |
+    set -o pipefail
+    cat {{ restore_db_file | quote }} | \
+      docker exec -i {{ mysql_container | quote }} sh -c \
+      'MYSQL_PWD="$MYSQL_ROOT_PASSWORD" exec mysql -uroot "$MYSQL_DATABASE"'
+  args:
+    executable: /bin/bash
+  changed_when: true
+  tags: [restore_db, restore_full]
+
+- name: "Restore DB | Result"
+  ansible.builtin.debug:
+    msg: "Base restaurée depuis {{ restore_db_file }}"
+  tags: [restore_db, restore_full]

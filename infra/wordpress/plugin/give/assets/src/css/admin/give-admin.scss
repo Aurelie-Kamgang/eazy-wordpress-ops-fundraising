@@ -1,0 +1,52 @@
+/**
+ * Give Admin SCSS/CSS
+ *
+ * @package:     Give
+ * @subpackage:  SCSS/Admin
+ * @copyright:   Copyright (c) 2016, GiveWP
+ * @license:     http://opensource.org/licenses/gpl-2.0.php GNU Public License
+*/
+
+// Plugins.
+@import '~chosen-js/chosen.css';
+@import '../frontend/mixins';
+@import '../frontend/variables';
+@import '../plugins/jquery-ui-fresh';
+@import '../plugins/hint.min';
+@import '../plugins/magnific-popup';
+@import '../frontend/fonts';
+@import '../plugins/modal';
+@import '../plugins/button';
+@import '../plugins/notice';
+
+// Icons
+@import '../icons/fa/fontawesome';
+@import '../icons/fa/regular';
+@import '../icons/fa/solid';
+@import '../icons/fa/brands';
+
+@import 'grids';
+@import 'forms';
+@import 'reports';
+@import 'logs';
+@import 'settings';
+@import 'setting-license';
+@import 'payment-history';
+@import 'dashboard';
+@import 'donors';
+@import 'buttons';
+@import 'system-info';
+@import 'util';
+@import 'updates';
+@import 'blank-slate';
+@import 'chosen';
+@import 'importer';
+@import 'export';
+@import 'goals';
+@import 'tabs';
+@import 'upsells';
+@import 'sale-banners';
+@import 'paypal-donations-migration-banners';
+@import '_components.admin-header';
+
+@import '../../../../src/DonorDashboards/resources/styles/upgradenotice.scss';

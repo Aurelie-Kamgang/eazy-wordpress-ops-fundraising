@@ -1,0 +1,108 @@
+---
+- name: "Update Plugins | Verify plugin list"
+  ansible.builtin.assert:
+    that:
+      - plugins_to_update | length > 0
+    fail_msg: "La variable plugins_to_update est vide dans inventory/group_vars/wordpress_servers.yml."
+  tags: [update_plugins]
+
+- name: "Update Plugins | Show requested updates"
+  ansible.builtin.debug:
+    var: plugins_to_update
+  tags: [update_plugins]
+
+- name: "Update Plugins | Verify plugin is installed"
+  ansible.builtin.command:
+    argv:
+      - docker
+      - exec
+      - "{{ wordpress_container }}"
+      - wp
+      - plugin
+      - is-installed
+      - "{{ item.name }}"
+      - --allow-root
+  loop: "{{ plugins_to_update }}"
+  loop_control:
+    label: "{{ item.name }}"
+  register: plugin_check
+  changed_when: false
+  failed_when: false
+  tags: [update_plugins]
+
+- name: "Update Plugins | Fail if plugin is not installed"
+  ansible.builtin.assert:
+    that:
+      - item.rc == 0
+    fail_msg: "Le plugin '{{ item.item.name }}' n'est pas installé sur WordPress."
+  loop: "{{ plugin_check.results }}"
+  loop_control:
+    label: "{{ item.item.name }}"
+  tags: [update_plugins]
+
+- name: "Update Plugins | Update to latest version"
+  ansible.builtin.command:
+    argv:
+      - docker
+      - exec
+      - "{{ wordpress_container }}"
+      - wp
+      - plugin
+      - update
+      - "{{ item.name }}"
+      - --allow-root
+  loop: "{{ plugins_to_update }}"
+  loop_control:
+    label: "{{ item.name }} -> latest"
+  when: (item.version | default('latest')) == 'latest'
+  register: plugin_update_latest
+  changed_when: "'Success:' in (plugin_update_latest.stdout | default('')) or 'Updated' in (plugin_update_latest.stdout | default(''))"
+  tags: [update_plugins]
+
+- name: "Update Plugins | Install requested version"
+  ansible.builtin.command:
+    argv:
+      - docker
+      - exec
+      - "{{ wordpress_container }}"
+      - wp
+      - plugin
+      - install
+      - "{{ item.name }}"
+      - "--version={{ item.version }}"
+      - --force
+      - --allow-root
+  loop: "{{ plugins_to_update }}"
+  loop_control:
+    label: "{{ item.name }} -> {{ item.version }}"
+  when: (item.version | default('latest')) != 'latest'
+  changed_when: true
+  tags: [update_plugins]
+
+- name: "Update Plugins | Show final plugin state"
+  ansible.builtin.command:
+    argv:
+      - docker
+      - exec
+      - "{{ wordpress_container }}"
+      - wp
+      - plugin
+      - get
+      - "{{ item.name }}"
+      - --fields=name,status,version,update
+      - --format=table
+      - --allow-root
+  loop: "{{ plugins_to_update }}"
+  loop_control:
+    label: "{{ item.name }}"
+  register: plugin_final_state
+  changed_when: false
+  tags: [update_plugins]
+
+- name: "Update Plugins | Result"
+  ansible.builtin.debug:
+    msg: "{{ item.stdout_lines }}"
+  loop: "{{ plugin_final_state.results }}"
+  loop_control:
+    label: "{{ item.item.name }}"
+  tags: [update_plugins]
