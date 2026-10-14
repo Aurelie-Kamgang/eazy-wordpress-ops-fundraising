@@ -1,7 +1,7 @@
 ---
 - name: "EAZYTraining - WordPress Ops"
   hosts: wordpress_servers
-  become: true
+  #become: true
   gather_facts: true
 
   roles:

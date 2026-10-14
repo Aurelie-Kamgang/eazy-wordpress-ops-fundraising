@@ -9,7 +9,7 @@ wordpress_root: "/var/www/html"
 # ============================================================
 # BACKUPS
 # ============================================================
-backup_base_dir: "/var/backups/eazytraining/wordpress"
+backup_base_dir: "/home/ubuntu/wordpress"
 backup_db_dir: "{{ backup_base_dir }}/database"
 backup_files_dir: "{{ backup_base_dir }}/files"
 
