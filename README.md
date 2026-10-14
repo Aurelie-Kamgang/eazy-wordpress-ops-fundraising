@@ -223,3 +223,124 @@ Le site WordPress représente l'application métier. Le repository contient les 
 ```text
 GitHub (code + variables) -> Semaphore (tag) -> Ansible -> WordPress
 ```
+
+# Démonstration rapide des restaurations WordPress
+
+## Restaurer les fichiers du site
+
+### 1. Faire un backup
+
+```bash
+ansible-playbook site.yml --tags backup_files
+```
+
+### 2. Modifier visuellement le site
+
+Ajouter une bannière rouge :
+
+```bash
+docker exec eazy-wp-wordpress sh -c \
+'echo "<div style=\"background:red;color:white;padding:30px;text-align:center;font-size:30px;font-weight:bold;\">SITE MODIFIÉ AVANT RESTAURATION</div>" >> /var/www/html/wp-content/themes/eazytraining-preprod/header.php'
+```
+
+Rafraîchir le site avec `Ctrl + F5`.
+
+### 3. Indiquer le backup à restaurer
+
+Dans :
+
+```text
+inventory/group_vars/wordpress_servers.yml
+```
+
+mettre :
+
+```yaml
+restore_files_filename: "wordpress_files_XXXXXXXX.tar.gz"
+restore_confirm: true
+```
+
+### 4. Restaurer
+
+```bash
+ansible-playbook site.yml --tags restore_files
+```
+
+Rafraîchir le site : la bannière rouge doit disparaître.
+
+---
+
+## Restaurer la base de données
+
+### 1. Faire un backup
+
+```bash
+ansible-playbook site.yml --tags backup_db
+```
+
+### 2. Créer une donnée après le backup
+
+```bash
+docker exec eazy-wp-db sh -c \
+'mysql -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" -e "
+CREATE TABLE demo_restore (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  message VARCHAR(255)
+);
+INSERT INTO demo_restore (message)
+VALUES (\"Créé après le backup\");
+"'
+```
+
+Vérifier :
+
+```bash
+docker exec eazy-wp-db sh -c \
+'mysql -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" -e "
+SELECT * FROM demo_restore;
+"'
+```
+
+### 3. Indiquer le backup à restaurer
+
+Dans :
+
+```text
+inventory/group_vars/wordpress_servers.yml
+```
+
+mettre :
+
+```yaml
+restore_db_filename: "wordpress_db_XXXXXXXX.sql"
+restore_confirm: true
+```
+
+### 4. Restaurer
+
+```bash
+ansible-playbook site.yml --tags restore_db
+```
+
+### 5. Vérifier
+
+```bash
+docker exec eazy-wp-db sh -c \
+'mysql -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" -e "
+SHOW TABLES LIKE '\''demo_restore'\'';
+"'
+```
+
+La table `demo_restore` ne doit plus exister.
+
+---
+
+## Résumé
+
+```text
+Fichiers :
+backup_files → modification visible → restore_files → site restauré
+
+Base de données :
+backup_db → création d'une table → restore_db → table supprimée
+```
