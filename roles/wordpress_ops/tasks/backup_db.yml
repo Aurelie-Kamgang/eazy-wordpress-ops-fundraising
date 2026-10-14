@@ -6,18 +6,18 @@
     mode: "0750"
   tags: [backup_db, backup_full]
 
+- name: "Backup DB | Define backup file"
+  ansible.builtin.set_fact:
+    backup_db_filename: "wordpress_db_{{ backup_timestamp }}.sql"
+    backup_db_full_path: "{{ backup_db_dir }}/wordpress_db_{{ backup_timestamp }}.sql"
+  tags: [backup_db, backup_full]
+
 - name: "Backup DB | Debug dump conditions"
   ansible.builtin.debug:
     msg:
       - "mysql_container={{ mysql_container }}"
       - "backup_db_full_path={{ backup_db_full_path }}"
       - "backup_db_dir={{ backup_db_dir }}"
-  tags: [backup_db, backup_full]
-
-- name: "Backup DB | Define backup file"
-  ansible.builtin.set_fact:
-    backup_db_filename: "wordpress_db_{{ backup_timestamp }}.sql"
-    backup_db_full_path: "{{ backup_db_dir }}/wordpress_db_{{ backup_timestamp }}.sql"
   tags: [backup_db, backup_full]
 
 - name: "Backup DB | Dump MySQL database"
