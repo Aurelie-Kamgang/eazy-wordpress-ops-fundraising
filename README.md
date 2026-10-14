@@ -1,0 +1,1 @@
+# eazy-wordpress-ops-fundraising
