@@ -89,7 +89,7 @@
       - plugin
       - get
       - "{{ item.name }}"
-      - --fields=name,status,version,update
+      - --fields=name,status,version
       - --format=table
       - --allow-root
   loop: "{{ plugins_to_update }}"
