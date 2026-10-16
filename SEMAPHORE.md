@@ -4,11 +4,21 @@ Le point essentiel : Semaphore tourne dans un conteneur. `ansible_connection: lo
 
 ## Configuration
 
-1. Démarrer Semaphore :
+## 1. Démarrer Semaphore
 
 ```bash
 ./bootstrap.sh semaphore
 ```
+
+Au premier lancement, si `infra/semaphore/.env` n'existe pas, le script le crée et te demande de modifier le mot de passe. Relance ensuite la commande.
+
+Ouvre :
+
+```text
+http://IP_PUBLIQUE_VM:3000
+```
+
+Le port 3000 doit être autorisé uniquement depuis ton IP/réseau d'administration.
 
 2. Key Store : créer une clé SSH avec le login `ubuntu`. Ne pas ajouter de Sudo Credential.
 
