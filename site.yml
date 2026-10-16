@@ -4,9 +4,13 @@
   #become: true
   gather_facts: true
   pre_tasks:
-    - name: Debug check mode
-      ansible.builtin.debug:
-        msg: "ansible_check_mode={{ ansible_check_mode }}"
+  - name: Refuser le mode Dry Run pour les opérations WordPress
+    ansible.builtin.assert:
+      that:
+        - not ansible_check_mode
+      fail_msg: >
+        Ce playbook ne doit pas être lancé en Dry Run (--check).
+        Désactive Dry Run dans Semaphore.
       tags:
         - always
   roles:
