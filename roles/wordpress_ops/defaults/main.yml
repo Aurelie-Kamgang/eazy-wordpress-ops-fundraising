@@ -9,4 +9,4 @@ plugins_to_update: []
 restore_db_filename: ""
 restore_files_filename: ""
 restore_confirm: false
-backup_timestamp: "{{ ansible_date_time.iso8601_basic_short }}"
+backup_timestamp: "{{ ansible_facts['date_time']['iso8601_basic_short' }}"
