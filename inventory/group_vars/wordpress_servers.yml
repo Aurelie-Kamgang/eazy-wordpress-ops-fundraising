@@ -23,7 +23,7 @@ backup_files_dir: "{{ backup_base_dir }}/files"
 # ============================================================
 plugins_to_update:
   - name: "give"
-    version: "latest"
+    version: "4.19.0"
 
 # ============================================================
 # RESTAURATION
@@ -37,4 +37,4 @@ restore_files_filename: "wordpress_files_20261016T075800.tar.gz"
 # Protection restauration. Passer à true uniquement le temps
 # de l'opération de restauration, puis revenir à false.
 # restore_confirm: false
-restore_confirm: true
+restore_confirm: false
