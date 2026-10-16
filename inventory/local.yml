@@ -1,7 +1,10 @@
 ---
+# Exécution directe sur la VM WordPress.
+# Utilisation : ansible-playbook -i inventory/local.yml site.yml --tags backup_db
 all:
   children:
     wordpress_servers:
       hosts:
         wordpress_vm:
           ansible_connection: local
+          ansible_python_interpreter: /usr/bin/python3

@@ -1,0 +1,13 @@
+---
+# Semaphore tourne dans Docker sur LA MEME VM que WordPress.
+# host.docker.internal est ajouté dans infra/semaphore/docker-compose.yml.
+# Dans Semaphore, associer à cet inventaire une clé SSH dont le login est ubuntu.
+all:
+  children:
+    wordpress_servers:
+      hosts:
+        wordpress_vm:
+          ansible_host: host.docker.internal
+          ansible_user: ubuntu
+          ansible_connection: ssh
+          ansible_python_interpreter: /usr/bin/python3

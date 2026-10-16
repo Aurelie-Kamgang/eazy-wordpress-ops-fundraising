@@ -8,17 +8,18 @@ wordpress_root: "/var/www/html"
 
 # ============================================================
 # BACKUPS
+# Le chemin est calculé sur LA VM CIBLE, avec le HOME de
+# l'utilisateur Ansible. En CLI et via Semaphore (ubuntu),
+# cela donne normalement /home/ubuntu/wordpress-backups.
 # ============================================================
-backup_base_dir: "/home/ubuntu/wordpress"
+backup_base_dir: "{{ ansible_env.HOME }}/wordpress-backups"
 backup_db_dir: "{{ backup_base_dir }}/database"
 backup_files_dir: "{{ backup_base_dir }}/files"
 
 # ============================================================
 # MISE A JOUR DE PLUGINS
-# Modifie ici le plugin / la version dans GitHub, puis lance
-# le tag update_plugins dans Semaphore.
-# version: latest -> dernière version disponible
-# version: 4.10.0 -> version précise
+# Modifier ici le plugin/la version dans le repo GitHub,
+# puis lancer le tag update_plugins dans Semaphore.
 # ============================================================
 plugins_to_update:
   - name: "give"
@@ -26,12 +27,11 @@ plugins_to_update:
 
 # ============================================================
 # RESTAURATION
-# Mets uniquement le NOM du fichier présent dans le répertoire
-# de backup de la VM. Exemple : wordpress_db_20261014T021500.sql
+# Mettre uniquement le NOM du fichier existant sur la VM.
 # ============================================================
 restore_db_filename: ""
 restore_files_filename: ""
 
-# Protection contre une restauration accidentelle.
-# Mets true uniquement pour la restauration, puis remets false.
+# Protection restauration. Passer à true uniquement le temps
+# de l'opération de restauration, puis revenir à false.
 restore_confirm: false

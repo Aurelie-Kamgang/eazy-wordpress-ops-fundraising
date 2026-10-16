@@ -1,4 +1,9 @@
 ---
+- name: "WordPress Ops | Check target"
+  ansible.builtin.include_tasks: check.yml
+  tags:
+    - check
+
 - name: "WordPress Ops | Update plugins"
   ansible.builtin.include_tasks: update_plugins.yml
   tags:

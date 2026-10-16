@@ -9,32 +9,61 @@
 - name: "Backup DB | Define backup file"
   ansible.builtin.set_fact:
     backup_db_filename: "wordpress_db_{{ backup_timestamp }}.sql"
+    backup_db_tmp_path: "/tmp/wordpress_db_{{ backup_timestamp }}.sql"
     backup_db_full_path: "{{ backup_db_dir }}/wordpress_db_{{ backup_timestamp }}.sql"
   tags: [backup_db, backup_full]
 
-- name: "Backup DB | Dump MySQL database"
+- name: "Backup DB | Dump MySQL database to temporary file"
   ansible.builtin.shell: |
     set -o pipefail
     docker exec {{ mysql_container | quote }} sh -c \
       'exec mysqldump -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" --single-transaction --quick --lock-tables=false "$MYSQL_DATABASE"' \
-      > {{ backup_db_full_path | quote }}
+      > {{ backup_db_tmp_path | quote }}
   args:
     executable: /bin/bash
   changed_when: true
   tags: [backup_db, backup_full]
 
-- name: "Backup DB | Verify backup file"
+- name: "Backup DB | Verify temporary dump"
+  ansible.builtin.stat:
+    path: "{{ backup_db_tmp_path }}"
+  register: db_tmp_stat
+  tags: [backup_db, backup_full]
+
+- name: "Backup DB | Validate temporary dump"
+  ansible.builtin.assert:
+    that:
+      - db_tmp_stat.stat.exists
+      - db_tmp_stat.stat.size | int > 100
+    fail_msg: "Le dump MySQL temporaire n'a pas été créé correctement sur la VM cible."
+  tags: [backup_db, backup_full]
+
+- name: "Backup DB | Move dump to backup directory"
+  ansible.builtin.copy:
+    src: "{{ backup_db_tmp_path }}"
+    dest: "{{ backup_db_full_path }}"
+    remote_src: true
+    mode: "0640"
+  tags: [backup_db, backup_full]
+
+- name: "Backup DB | Remove temporary dump"
+  ansible.builtin.file:
+    path: "{{ backup_db_tmp_path }}"
+    state: absent
+  tags: [backup_db, backup_full]
+
+- name: "Backup DB | Verify final backup"
   ansible.builtin.stat:
     path: "{{ backup_db_full_path }}"
   register: db_backup_stat
   tags: [backup_db, backup_full]
 
-- name: "Backup DB | Validate backup"
+- name: "Backup DB | Validate final backup"
   ansible.builtin.assert:
     that:
       - db_backup_stat.stat.exists
       - db_backup_stat.stat.size | int > 100
-    fail_msg: "Le backup DB n'a pas été créé correctement."
+    fail_msg: "Le backup DB final n'a pas été créé correctement."
   tags: [backup_db, backup_full]
 
 - name: "Backup DB | Result"

@@ -2,11 +2,11 @@
 wordpress_container: "eazy-wp-wordpress"
 mysql_container: "eazy-wp-db"
 wordpress_root: "/var/www/html"
-backup_base_dir: "/var/backups/eazytraining/wordpress"
+backup_base_dir: "{{ ansible_env.HOME }}/wordpress-backups"
 backup_db_dir: "{{ backup_base_dir }}/database"
 backup_files_dir: "{{ backup_base_dir }}/files"
 plugins_to_update: []
 restore_db_filename: ""
 restore_files_filename: ""
 restore_confirm: false
-backup_timestamp: "{{ ansible_facts['date_time']['iso8601_basic_short'] }}"
+backup_timestamp: "{{ ansible_date_time.iso8601_basic_short }}"
