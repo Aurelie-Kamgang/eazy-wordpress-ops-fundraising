@@ -3,6 +3,11 @@
   hosts: wordpress_servers
   #become: true
   gather_facts: true
-
+pre_tasks:
+  - name: Debug check mode
+    ansible.builtin.debug:
+      msg: "ansible_check_mode={{ ansible_check_mode }}"
+    tags:
+      - always
   roles:
     - wordpress_ops
