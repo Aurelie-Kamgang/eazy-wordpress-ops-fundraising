@@ -32,7 +32,7 @@ plugins_to_update:
 # restore_db_filename: ""
 # restore_files_filename: ""
 restore_db_filename: "wordpress_db_20261016T075621.sql"
-restore_files_filename: "wordpress_files_20261016T010200.tar.gz"
+restore_files_filename: "wordpress_files_20261016T075800.tar.gz"
 
 # Protection restauration. Passer à true uniquement le temps
 # de l'opération de restauration, puis revenir à false.
