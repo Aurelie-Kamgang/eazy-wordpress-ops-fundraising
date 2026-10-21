@@ -43,10 +43,10 @@ restore_confirm: false
 # AMAZON S3 - EXTERNALISATION DES BACKUPS
 # Le nom final du bucket est construit automatiquement avec
 # AWS Account ID + région afin de rester stable et unique.
-# Exemple : eazytraining-wordpress-backups-123456789012-eu-east-1
+# Exemple : eazytraining-wordpress-backups-123456789012-us-east-1
 # ============================================================
 s3_upload_enabled: true
-aws_region: "eu-east-1"
+aws_region: "us-east-1"
 s3_bucket_prefix: "eazytraining-wordpress-backups"
 s3_db_prefix: "database"
 s3_files_prefix: "files"

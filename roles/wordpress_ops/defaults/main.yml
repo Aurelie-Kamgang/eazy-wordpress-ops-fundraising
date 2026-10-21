@@ -12,7 +12,7 @@ restore_confirm: false
 backup_timestamp: "{{ ansible_date_time.iso8601_basic_short }}"
 
 s3_upload_enabled: true
-aws_region: "eu-east-1"
+aws_region: "us-east-1"
 s3_bucket_prefix: "eazytraining-wordpress-backups"
 s3_db_prefix: "database"
 s3_files_prefix: "files"
