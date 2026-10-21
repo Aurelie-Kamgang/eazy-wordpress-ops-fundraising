@@ -25,3 +25,5 @@ echo "Semaphore démarré."
 docker compose ps
 echo "URL : http://IP_PUBLIQUE_DE_LA_VM:${SEMAPHORE_PORT:-3000}"
 echo "Utilisateur : valeur SEMAPHORE_ADMIN dans infra/semaphore/.env"
+
+sudo apt install ansible -y
