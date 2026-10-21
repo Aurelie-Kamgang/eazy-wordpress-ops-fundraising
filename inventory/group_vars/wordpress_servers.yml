@@ -38,3 +38,15 @@ restore_files_filename: "wordpress_files_20261016T075800.tar.gz"
 # de l'opération de restauration, puis revenir à false.
 # restore_confirm: false
 restore_confirm: false
+
+# ============================================================
+# AMAZON S3 - EXTERNALISATION DES BACKUPS
+# Le nom final du bucket est construit automatiquement avec
+# AWS Account ID + région afin de rester stable et unique.
+# Exemple : eazytraining-wordpress-backups-123456789012-eu-east-1
+# ============================================================
+s3_upload_enabled: true
+aws_region: "eu-east-1"
+s3_bucket_prefix: "eazytraining-wordpress-backups"
+s3_db_prefix: "database"
+s3_files_prefix: "files"

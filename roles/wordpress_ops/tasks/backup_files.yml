@@ -67,3 +67,25 @@
   ansible.builtin.debug:
     msg: "Backup fichiers créé : {{ backup_files_full_path }} ({{ files_backup_stat.stat.size }} octets)"
   tags: [backup_files, backup_full]
+
+- name: "Backup Files | Upload backup to S3"
+  ansible.builtin.command:
+    argv:
+      - aws
+      - s3
+      - cp
+      - "{{ backup_files_full_path }}"
+      - "s3://{{ s3_backup_bucket }}/{{ s3_files_prefix }}/{{ backup_files_filename }}"
+      - --region
+      - "{{ aws_region }}"
+  register: files_s3_upload
+  changed_when: files_s3_upload.rc == 0
+  when: s3_upload_enabled | bool
+  tags: [backup_files, backup_full, upload_s3]
+
+
+- name: "Backup Files | S3 result"
+  ansible.builtin.debug:
+    msg: "Backup fichiers externalisé : s3://{{ s3_backup_bucket }}/{{ s3_files_prefix }}/{{ backup_files_filename }}"
+  when: s3_upload_enabled | bool
+  tags: [backup_files, backup_full, upload_s3]

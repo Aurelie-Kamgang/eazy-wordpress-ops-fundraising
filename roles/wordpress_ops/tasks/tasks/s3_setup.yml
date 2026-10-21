@@ -1,0 +1,146 @@
+---
+- name: "S3 | Verify AWS CLI is installed"
+  ansible.builtin.command:
+    argv:
+      - aws
+      - --version
+  register: aws_cli_check
+  changed_when: false
+  when: s3_upload_enabled | bool
+  tags: [s3_setup, upload_s3, backup_db, backup_files, backup_full]
+
+
+- name: "S3 | Get AWS account ID"
+  ansible.builtin.command:
+    argv:
+      - aws
+      - sts
+      - get-caller-identity
+      - --query
+      - Account
+      - --output
+      - text
+      - --region
+      - "{{ aws_region }}"
+  register: aws_account_id
+  changed_when: false
+  when: s3_upload_enabled | bool
+  tags: [s3_setup, upload_s3, backup_db, backup_files, backup_full]
+
+
+- name: "S3 | Define globally unique bucket name"
+  ansible.builtin.set_fact:
+    s3_backup_bucket: "{{ s3_bucket_prefix }}-{{ aws_account_id.stdout | trim }}-{{ aws_region }}"
+  when: s3_upload_enabled | bool
+  tags: [s3_setup, upload_s3, backup_db, backup_files, backup_full]
+
+
+- name: "S3 | Check whether bucket exists"
+  ansible.builtin.command:
+    argv:
+      - aws
+      - s3api
+      - head-bucket
+      - --bucket
+      - "{{ s3_backup_bucket }}"
+      - --region
+      - "{{ aws_region }}"
+  register: s3_bucket_check
+  changed_when: false
+  failed_when: false
+  when: s3_upload_enabled | bool
+  tags: [s3_setup, upload_s3, backup_db, backup_files, backup_full]
+
+
+- name: "S3 | Create bucket outside us-east-1"
+  ansible.builtin.command:
+    argv:
+      - aws
+      - s3api
+      - create-bucket
+      - --bucket
+      - "{{ s3_backup_bucket }}"
+      - --region
+      - "{{ aws_region }}"
+      - --create-bucket-configuration
+      - "LocationConstraint={{ aws_region }}"
+  when:
+    - s3_upload_enabled | bool
+    - s3_bucket_check.rc != 0
+    - aws_region != "us-east-1"
+  tags: [s3_setup, upload_s3, backup_db, backup_files, backup_full]
+
+
+- name: "S3 | Create bucket in us-east-1"
+  ansible.builtin.command:
+    argv:
+      - aws
+      - s3api
+      - create-bucket
+      - --bucket
+      - "{{ s3_backup_bucket }}"
+      - --region
+      - us-east-1
+  when:
+    - s3_upload_enabled | bool
+    - s3_bucket_check.rc != 0
+    - aws_region == "us-east-1"
+  tags: [s3_setup, upload_s3, backup_db, backup_files, backup_full]
+
+
+- name: "S3 | Block all public access"
+  ansible.builtin.command:
+    argv:
+      - aws
+      - s3api
+      - put-public-access-block
+      - --bucket
+      - "{{ s3_backup_bucket }}"
+      - --region
+      - "{{ aws_region }}"
+      - --public-access-block-configuration
+      - "BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true"
+  changed_when: false
+  when: s3_upload_enabled | bool
+  tags: [s3_setup, upload_s3, backup_db, backup_files, backup_full]
+
+
+- name: "S3 | Enable bucket versioning"
+  ansible.builtin.command:
+    argv:
+      - aws
+      - s3api
+      - put-bucket-versioning
+      - --bucket
+      - "{{ s3_backup_bucket }}"
+      - --region
+      - "{{ aws_region }}"
+      - --versioning-configuration
+      - "Status=Enabled"
+  changed_when: false
+  when: s3_upload_enabled | bool
+  tags: [s3_setup, upload_s3, backup_db, backup_files, backup_full]
+
+
+- name: "S3 | Enable default AES256 encryption"
+  ansible.builtin.command:
+    argv:
+      - aws
+      - s3api
+      - put-bucket-encryption
+      - --bucket
+      - "{{ s3_backup_bucket }}"
+      - --region
+      - "{{ aws_region }}"
+      - --server-side-encryption-configuration
+      - '{"Rules":[{"ApplyServerSideEncryptionByDefault":{"SSEAlgorithm":"AES256"}}]}'
+  changed_when: false
+  when: s3_upload_enabled | bool
+  tags: [s3_setup, upload_s3, backup_db, backup_files, backup_full]
+
+
+- name: "S3 | Result"
+  ansible.builtin.debug:
+    msg: "Bucket S3 prêt : {{ s3_backup_bucket }}"
+  when: s3_upload_enabled | bool
+  tags: [s3_setup, upload_s3, backup_db, backup_files, backup_full]

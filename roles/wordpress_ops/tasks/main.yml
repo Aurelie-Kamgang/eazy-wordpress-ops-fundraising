@@ -32,3 +32,12 @@
   tags:
     - restore_files
     - restore_full
+
+- name: "WordPress Ops | Prepare S3 backup storage"
+  ansible.builtin.include_tasks: s3_setup.yml
+  tags:
+    - s3_setup
+    - upload_s3
+    - backup_db
+    - backup_files
+    - backup_full
