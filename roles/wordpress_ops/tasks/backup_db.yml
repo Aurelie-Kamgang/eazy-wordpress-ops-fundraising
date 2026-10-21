@@ -92,3 +92,4 @@
     msg: "Backup DB externalisé : s3://{{ s3_backup_bucket }}/{{ s3_db_prefix }}/{{ backup_db_filename }}"
   when: s3_upload_enabled | bool
   tags: [backup_db, backup_full, upload_s3]
+

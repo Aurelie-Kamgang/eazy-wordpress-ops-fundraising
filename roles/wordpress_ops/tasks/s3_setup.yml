@@ -1,12 +1,68 @@
 ---
-- name: "S3 | Verify AWS CLI is installed"
+- name: "AWS CLI | Check if AWS CLI is installed"
   ansible.builtin.command:
     argv:
       - aws
       - --version
   register: aws_cli_check
   changed_when: false
-  when: s3_upload_enabled | bool
+  failed_when: false
+  tags: [s3_setup, upload_s3, backup_db, backup_files, backup_full]
+
+
+- name: "AWS CLI | Install required packages"
+  ansible.builtin.apt:
+    name:
+      - curl
+      - unzip
+    state: present
+    update_cache: true
+  become: true
+  when: aws_cli_check.rc != 0
+  tags: [s3_setup, upload_s3, backup_db, backup_files, backup_full]
+
+
+- name: "AWS CLI | Download AWS CLI v2"
+  ansible.builtin.get_url:
+    url: "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
+    dest: "/tmp/awscliv2.zip"
+    mode: "0644"
+  when: aws_cli_check.rc != 0
+  tags: [s3_setup, upload_s3, backup_db, backup_files, backup_full]
+
+
+- name: "AWS CLI | Extract installer"
+  ansible.builtin.unarchive:
+    src: "/tmp/awscliv2.zip"
+    dest: "/tmp"
+    remote_src: true
+  when: aws_cli_check.rc != 0
+  tags: [s3_setup, upload_s3, backup_db, backup_files, backup_full]
+
+
+- name: "AWS CLI | Install AWS CLI v2"
+  ansible.builtin.command:
+    argv:
+      - /tmp/aws/install
+      - --update
+  become: true
+  when: aws_cli_check.rc != 0
+  tags: [s3_setup, upload_s3, backup_db, backup_files, backup_full]
+
+
+- name: "AWS CLI | Verify installation"
+  ansible.builtin.command:
+    argv:
+      - aws
+      - --version
+  register: aws_cli_version
+  changed_when: false
+  tags: [s3_setup, upload_s3, backup_db, backup_files, backup_full]
+
+
+- name: "AWS CLI | Display version"
+  ansible.builtin.debug:
+    msg: "{{ aws_cli_version.stdout | default(aws_cli_version.stderr) }}"
   tags: [s3_setup, upload_s3, backup_db, backup_files, backup_full]
 
 
@@ -25,14 +81,14 @@
   register: aws_account_id
   changed_when: false
   when: s3_upload_enabled | bool
-  tags: [s3_setup, upload_s3, backup_db, backup_files, backup_full]
+  tags: [s3_setup, upload_s3, backup_db, backup_files, backup_full, upload_s3]
 
 
 - name: "S3 | Define globally unique bucket name"
   ansible.builtin.set_fact:
     s3_backup_bucket: "{{ s3_bucket_prefix }}-{{ aws_account_id.stdout | trim }}-{{ aws_region }}"
   when: s3_upload_enabled | bool
-  tags: [s3_setup, upload_s3, backup_db, backup_files, backup_full]
+  tags: [s3_setup, upload_s3, backup_db, backup_files, backup_full, upload_s3]
 
 
 - name: "S3 | Check whether bucket exists"
@@ -49,7 +105,7 @@
   changed_when: false
   failed_when: false
   when: s3_upload_enabled | bool
-  tags: [s3_setup, upload_s3, backup_db, backup_files, backup_full]
+  tags: [s3_setup, upload_s3, backup_db, backup_files, backup_full, upload_s3]
 
 
 - name: "S3 | Create bucket outside us-east-1"
@@ -68,7 +124,7 @@
     - s3_upload_enabled | bool
     - s3_bucket_check.rc != 0
     - aws_region != "us-east-1"
-  tags: [s3_setup, upload_s3, backup_db, backup_files, backup_full]
+  tags: [s3_setup, upload_s3, backup_db, backup_files, backup_full, upload_s3]
 
 
 - name: "S3 | Create bucket in us-east-1"
@@ -85,7 +141,7 @@
     - s3_upload_enabled | bool
     - s3_bucket_check.rc != 0
     - aws_region == "us-east-1"
-  tags: [s3_setup, upload_s3, backup_db, backup_files, backup_full]
+  tags: [s3_setup, upload_s3, backup_db, backup_files, backup_full, upload_s3]
 
 
 - name: "S3 | Block all public access"
@@ -102,7 +158,7 @@
       - "BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true"
   changed_when: false
   when: s3_upload_enabled | bool
-  tags: [s3_setup, upload_s3, backup_db, backup_files, backup_full]
+  tags: [s3_setup, upload_s3, backup_db, backup_files, backup_full, upload_s3]
 
 
 - name: "S3 | Enable bucket versioning"
@@ -119,7 +175,7 @@
       - "Status=Enabled"
   changed_when: false
   when: s3_upload_enabled | bool
-  tags: [s3_setup, upload_s3, backup_db, backup_files, backup_full]
+  tags: [s3_setup, upload_s3, backup_db, backup_files, backup_full, upload_s3]
 
 
 - name: "S3 | Enable default AES256 encryption"
@@ -136,11 +192,11 @@
       - '{"Rules":[{"ApplyServerSideEncryptionByDefault":{"SSEAlgorithm":"AES256"}}]}'
   changed_when: false
   when: s3_upload_enabled | bool
-  tags: [s3_setup, upload_s3, backup_db, backup_files, backup_full]
+  tags: [s3_setup, upload_s3, backup_db, backup_files, backup_full, upload_s3]
 
 
 - name: "S3 | Result"
   ansible.builtin.debug:
     msg: "Bucket S3 prêt : {{ s3_backup_bucket }}"
   when: s3_upload_enabled | bool
-  tags: [s3_setup, upload_s3, backup_db, backup_files, backup_full]
+  tags: [s3_setup, upload_s3, backup_db, backup_files, backup_full, upload_s3]
